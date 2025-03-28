@@ -29,6 +29,7 @@ public class App {
     }
 
     private static final Logger logger = Logger.getLogger(App.class.getName());
+    // logger.log(Level.INFO,"The 'Hello, World' program runs");
     // End code for logging exercise
 
     /**
@@ -39,15 +40,19 @@ public class App {
 
         wordleDatabaseConnection.createNewDatabase("words.db");
         if (wordleDatabaseConnection.checkIfConnectionDefined()) {
-            System.out.println("Wordle created and connected.");
+            // System.out.println("Wordle created and connected.");
+            logger.log(Level.INFO, "Wordle created and connected.");
         } else {
             System.out.println("Not able to connect. Sorry!");
+            logger.log(Level.SEVERE, "Not able to connect.");
             return;
         }
         if (wordleDatabaseConnection.createWordleTables()) {
-            System.out.println("Wordle structures in place.");
+            // System.out.println("Wordle structures in place.");
+            logger.log(Level.INFO, "Wordle structures in place.");
         } else {
             System.out.println("Not able to launch. Sorry!");
+            logger.log(Level.SEVERE, "Not able to launch.");
             return;
         }
 
@@ -55,16 +60,24 @@ public class App {
 
         try (BufferedReader br = new BufferedReader(new FileReader("resources/data.txt"))) {
             String line;
+            boolean valid;
             int i = 1;
             while ((line = br.readLine()) != null) {
-                System.out.println(line);
-                wordleDatabaseConnection.addValidWord(i, line);
-                i++;
+                // System.out.println(line);
+                valid = Pattern.matches("^[a-z]{4}$", line);
+                if (valid) {
+                    logger.log(Level.INFO, line);
+                    wordleDatabaseConnection.addValidWord(i, line);
+                    i++;
+                } else {
+                    logger.log(Level.SEVERE, "Invalid word " + line + " discovered in data.txt");
+                }
             }
 
         } catch (IOException e) {
+            logger.log(Level.SEVERE, "Not able to load.", e);
             System.out.println("Not able to load . Sorry!");
-            System.out.println(e.getMessage());
+            // System.out.println(e.getMessage());
             return;
         }
 
@@ -80,6 +93,7 @@ public class App {
                     break;
                 valid = Pattern.matches("^[a-z]{4}$", guess);
                 if (!valid) {
+                    logger.log(Level.WARNING, "Received invalid input: " + guess);
                     System.out.println("Invalid input! 4 letter word, lowercase only please.");
                 }
             }
@@ -100,12 +114,14 @@ public class App {
                         break;
                     valid = Pattern.matches("^[a-z]{4}$", guess);
                     if (!valid) {
+                        logger.log(Level.WARNING, "Received invalid input: " + guess);
                         System.out.println("Invalid input! 4 letter word, lowercase only please.");
                     }
                 }
             }
         } catch (NoSuchElementException | IllegalStateException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error: ", e);
+            // e.printStackTrace();
         }
 
     }
